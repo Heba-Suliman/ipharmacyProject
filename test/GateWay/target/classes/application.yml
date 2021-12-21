@@ -1,0 +1,58 @@
+server:
+  port: 9093
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:9094/eureka
+spring:
+  application:
+    name: ApiGateway
+  cloud:
+    gateway:
+      routes:
+        - id: distractmedicinekind
+          uri: lb://distractmedicinekind
+          predicates:
+            - Path=/add/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: distractmedicinekind
+                fallbackuri: forward:/distractmedicinekindservicefallback
+        - id: addmedicinekindService
+          uri: lb://addmedicinekindService
+          predicates:
+            - Path=/distract/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: addmedicinekindService
+                fallbackuri: forward:/addmedicinekindservicefallback
+
+hystrix:
+  command:
+    fallbackcmd:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 4000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream
+
+
+
+
+
+
+
+
+
+
+
+
+
+
